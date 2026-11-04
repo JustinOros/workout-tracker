@@ -8,6 +8,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Workouts">
 <title>Workout Tracker</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230e0e0e'/><rect x='10' y='28' width='44' height='8' fill='%23f4d35e'/><rect x='8' y='20' width='8' height='24' rx='2' fill='%23f4d35e'/><rect x='48' y='20' width='8' height='24' rx='2' fill='%23f4d35e'/></svg>">
 <style>
 :root{--bg:#0e0e0e;--s1:#171717;--s2:#212121;--bd:#2c2c2c;--tx:#f1f1f1;--mu:#9b9b9b;--acc:#f4d35e;--acc2:#ff8a65;--ok:#59d19b;--r:14px}
@@ -892,6 +894,7 @@ S=Object.assign(defaults(),o);S.gear=Object.assign(defaults().gear,o.gear||{});s
 fr.readAsText(e.target.files[0]);
 });
 render();
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 })();
 </script>
 </body>
