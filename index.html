@@ -115,7 +115,7 @@ h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);
 .chart .ln{fill:none;stroke:var(--acc);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
 .chart .dot{fill:var(--acc);stroke:var(--bg);stroke-width:2}
 .chart .h0{fill:var(--s2)}.chart .h1{fill:rgba(244,211,94,.3)}.chart .h2{fill:rgba(244,211,94,.55)}.chart .h3{fill:rgba(244,211,94,.8)}.chart .h4{fill:var(--acc)}
-.hb{display:grid;grid-template-columns:92px 1fr 64px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+.hb{display:grid;grid-template-columns:128px 1fr 64px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
 .hb .t{height:12px;background:var(--s2);border-radius:99px;overflow:hidden}
 .hb .t i{display:block;height:100%;background:var(--acc);border-radius:99px}
 .hb .n{text-align:right;color:var(--mu);font-variant-numeric:tabular-nums}
@@ -182,14 +182,14 @@ td{padding:8px 6px 8px 0;border-top:1px solid var(--bd);vertical-align:top}
 (function(){
 'use strict';
 var KEY='workout-tracker-v1';
-var MUSCLES=['Chest','Back','Shoulders','Biceps','Triceps','Quads','Hamstrings','Glutes','Calves','Core','Cardio'];
+var MUSCLES=['Chest','Back','Shoulders (Delts)','Biceps','Triceps','Quads','Hamstrings','Glutes','Calves','Core','Cardio'];
 var LIFT=MUSCLES.slice(0,10);
 var EQUIP=[['db','Dumbbells'],['bb','Barbell and plates'],['bench','Weight bench'],['rack','Power cage or squat rack'],['dip','Dip bars'],['cable','High and low pulleys'],['mine','Landmine attachment'],['band','Resistance bands (handles and door anchor)'],['bosu','Bosu balance ball'],['ball','Yoga ball'],['step','Step bench'],['ellip','Elliptical'],['ez','Curl bar'],['kb','Kettlebell'],['pull','Pull-up bar'],['legpress','Leg press machine'],['legext','Leg extension machine'],['legcurl','Leg curl machine'],['chestm','Chest press machine'],['rowm','Row machine'],['shm','Shoulder press machine'],['pec','Pec deck'],['calf','Calf raise machine'],['smith','Smith machine']];
 var RAW=[
-'dips|Chest Dip|Chest|dip|c','bosupush|Bosu Push-Up|Chest|bosu|c','bandfly|Band Chest Fly|Chest|band','ballpress|Dumbbell Press on Yoga Ball|Chest|db,ball|c','lmrow|Landmine Row|Back|bb,mine|c','bandlatpd|Band Lat Pulldown|Back|band','ballext|Yoga Ball Back Extension|Back|ball','lmpress|Landmine Press|Shoulders|bb,mine|c','bandface|Band Face Pull|Shoulders|band','dipt|Tricep Dip|Triceps|dip|c','lmsquat|Landmine Squat|Quads|bb,mine|c','bosusquat|Bosu Squat|Quads|bosu','stepbw|Step-Up|Quads|step|c','stepdb|Dumbbell Step-Up on Step Bench|Quads|db,step|c','ballwall|Wall Squat with Yoga Ball|Quads|ball','ballcurl|Yoga Ball Hamstring Curl|Hamstrings|ball','lmrdl|Landmine Romanian Deadlift|Hamstrings|bb,mine|c','bandkick|Band Glute Kickback|Glutes|band','ballbridge|Glute Bridge with Feet on Yoga Ball|Glutes|ball','stepcalf|Calf Raise on Step Bench|Calves|step','dipraise|Dip Bar Knee Raise|Core|dip','ballcrunch|Yoga Ball Crunch|Core|ball','ballroll|Yoga Ball Rollout|Core|ball','lmtwist|Landmine Rotation|Core|bb,mine','bosuplank|Bosu Plank|Core|bosu|t','ellip|Elliptical|Cardio|ellip|tm',
+'dips|Chest Dip|Chest|dip|c','bosupush|Bosu Push-Up|Chest|bosu|c','bandfly|Band Chest Fly|Chest|band','ballpress|Dumbbell Press on Yoga Ball|Chest|db,ball|c','lmrow|Landmine Row|Back|bb,mine|c','bandlatpd|Band Lat Pulldown|Back|band','ballext|Yoga Ball Back Extension|Back|ball','lmpress|Landmine Press|Shoulders (Delts)|bb,mine|c','bandface|Band Face Pull|Shoulders (Delts)|band','dipt|Tricep Dip|Triceps|dip|c','lmsquat|Landmine Squat|Quads|bb,mine|c','bosusquat|Bosu Squat|Quads|bosu','stepbw|Step-Up|Quads|step|c','stepdb|Dumbbell Step-Up on Step Bench|Quads|db,step|c','ballwall|Wall Squat with Yoga Ball|Quads|ball','ballcurl|Yoga Ball Hamstring Curl|Hamstrings|ball','lmrdl|Landmine Romanian Deadlift|Hamstrings|bb,mine|c','bandkick|Band Glute Kickback|Glutes|band','ballbridge|Glute Bridge with Feet on Yoga Ball|Glutes|ball','stepcalf|Calf Raise on Step Bench|Calves|step','dipraise|Dip Bar Knee Raise|Core|dip','ballcrunch|Yoga Ball Crunch|Core|ball','ballroll|Yoga Ball Rollout|Core|ball','lmtwist|Landmine Rotation|Core|bb,mine','bosuplank|Bosu Plank|Core|bosu|t','ellip|Elliptical|Cardio|ellip|tm',
 'pushup|Push-Up|Chest||c','incpush|Incline Push-Up|Chest|bench|c','dbbench|Dumbbell Bench Press|Chest|db,bench|c','dbinc|Incline Dumbbell Press|Chest|db,bench|c','dbfly|Dumbbell Fly|Chest|db,bench','dbfloor|Dumbbell Floor Press|Chest|db|c','bbbench|Barbell Bench Press|Chest|bb,bench|c','bbinc|Incline Barbell Press|Chest|bb,bench|c','cfly|Cable Fly|Chest|cable','chestpress|Chest Press Machine|Chest|chestm|c','pecdeck|Pec Deck|Chest|pec','bandpress|Band Chest Press|Chest|band','smithbench|Smith Machine Bench Press|Chest|smith,bench|c',
 'pullup|Pull-Up|Back|pull|c','chinup|Chin-Up|Back|pull|c','latpull|Lat Pulldown|Back|cable|c','cablerow|Seated Cable Row|Back|cable|c','dbrow|One-Arm Dumbbell Row|Back|db|c','dbrowb|Chest-Supported Dumbbell Row|Back|db,bench|c','bbrow|Barbell Bent-Over Row|Back|bb|c','deadlift|Deadlift|Back|bb|c','rowm|Machine Row|Back|rowm|c','bandrow|Band Row|Back|band','sapull|Straight-Arm Pulldown|Back|cable','pullover|Dumbbell Pullover|Back|db,bench','kbrow|Kettlebell Row|Back|kb|c','superman|Superman|Back|','dbshrug|Dumbbell Shrug|Back|db',
-'dbpress|Dumbbell Shoulder Press|Shoulders|db|c','arnold|Arnold Press|Shoulders|db|c','ohp|Barbell Overhead Press|Shoulders|bb|c','shpress|Shoulder Press Machine|Shoulders|shm|c','kbpress|Kettlebell Press|Shoulders|kb|c','pike|Pike Push-Up|Shoulders||c','latraise|Lateral Raise|Shoulders|db','frontraise|Front Raise|Shoulders|db','revfly|Rear Delt Fly|Shoulders|db','cablelat|Cable Lateral Raise|Shoulders|cable','facepull|Face Pull|Shoulders|cable','bandpull|Band Pull-Apart|Shoulders|band','bandlat|Band Lateral Raise|Shoulders|band',
+'dbpress|Dumbbell Shoulder Press|Shoulders (Delts)|db|c','arnold|Arnold Press|Shoulders (Delts)|db|c','ohp|Barbell Overhead Press|Shoulders (Delts)|bb|c','shpress|Shoulder Press Machine|Shoulders (Delts)|shm|c','kbpress|Kettlebell Press|Shoulders (Delts)|kb|c','pike|Pike Push-Up|Shoulders (Delts)||c','latraise|Lateral Raise|Shoulders (Delts)|db','frontraise|Front Raise|Shoulders (Delts)|db','revfly|Rear Delt Fly|Shoulders (Delts)|db','cablelat|Cable Lateral Raise|Shoulders (Delts)|cable','facepull|Face Pull|Shoulders (Delts)|cable','bandpull|Band Pull-Apart|Shoulders (Delts)|band','bandlat|Band Lateral Raise|Shoulders (Delts)|band',
 'dbcurl|Dumbbell Curl|Biceps|db','hammer|Hammer Curl|Biceps|db','incurl|Incline Dumbbell Curl|Biceps|db,bench','conc|Concentration Curl|Biceps|db','ezcurl|Curl Bar Curl|Biceps|ez','bbcurl|Barbell Curl|Biceps|bb','cablecurl|Cable Curl|Biceps|cable','bandcurl|Band Curl|Biceps|band',
 'pushdown|Cable Pushdown|Triceps|cable','ropeext|Overhead Cable Extension|Triceps|cable','skull|Skull Crusher|Triceps|ez,bench','ezover|Curl Bar Overhead Extension|Triceps|ez','dbover|Dumbbell Overhead Extension|Triceps|db','kickback|Tricep Kickback|Triceps|db','cgbench|Close-Grip Bench Press|Triceps|bb,bench|c','benchdip|Bench Dip|Triceps|bench','diamond|Diamond Push-Up|Triceps|','bandpush|Band Pushdown|Triceps|band',
 'squat|Barbell Back Squat|Quads|bb,rack|c','front|Front Squat|Quads|bb,rack|c','goblet|Goblet Squat|Quads|db|c','gobletkb|Kettlebell Goblet Squat|Quads|kb|c','bwsquat|Bodyweight Squat|Quads||c','lunge|Dumbbell Lunge|Quads|db|c','revlunge|Reverse Lunge|Quads||c','bulg|Bulgarian Split Squat|Quads|db,bench|c','stepup|Dumbbell Step-Up|Quads|db,bench|c','legpress|Leg Press|Quads|legpress|c','legext|Leg Extension|Quads|legext','smithsquat|Smith Machine Squat|Quads|smith|c','bandsquat|Band Squat|Quads|band','wallsit|Wall Sit|Quads||t',
@@ -200,17 +200,17 @@ var RAW=[
 ];
 var LIB=RAW.map(function(l){var p=l.split('|');return{id:p[0],n:p[1],m:p[2],req:p[3]?p[3].split(','):[],c:(p[4]||'').indexOf('c')>-1,t:(p[4]||'').indexOf('t')>-1,u:(p[4]||'').indexOf('m')>-1?'min':'sec'}});
 var TPL={
-'Full Body A':['Quads','Chest','Back','Hamstrings','Shoulders','Core','Biceps','Triceps'],
-'Full Body B':['Glutes','Back','Chest','Quads','Shoulders','Core','Triceps','Biceps'],
-'Full Body C':['Hamstrings','Chest','Back','Quads','Calves','Core','Shoulders','Glutes'],
-'Upper':['Chest','Back','Shoulders','Back','Chest','Biceps','Triceps','Shoulders'],
+'Full Body A':['Quads','Chest','Back','Hamstrings','Shoulders (Delts)','Core','Biceps','Triceps'],
+'Full Body B':['Glutes','Back','Chest','Quads','Shoulders (Delts)','Core','Triceps','Biceps'],
+'Full Body C':['Hamstrings','Chest','Back','Quads','Calves','Core','Shoulders (Delts)','Glutes'],
+'Upper':['Chest','Back','Shoulders (Delts)','Back','Chest','Biceps','Triceps','Shoulders (Delts)'],
 'Lower':['Quads','Hamstrings','Glutes','Quads','Hamstrings','Calves','Core','Glutes'],
-'Push':['Chest','Shoulders','Chest','Triceps','Shoulders','Triceps','Chest','Core'],
-'Pull':['Back','Back','Biceps','Shoulders','Back','Biceps','Core','Back'],
+'Push':['Chest','Shoulders (Delts)','Chest','Triceps','Shoulders (Delts)','Triceps','Chest','Core'],
+'Pull':['Back','Back','Biceps','Shoulders (Delts)','Back','Biceps','Core','Back'],
 'Legs':['Quads','Hamstrings','Glutes','Quads','Calves','Core','Hamstrings','Glutes'],
 'Chest and Triceps':['Chest','Chest','Triceps','Chest','Triceps','Triceps','Chest','Core'],
 'Back and Biceps':['Back','Back','Biceps','Back','Biceps','Biceps','Back','Core'],
-'Shoulders and Core':['Shoulders','Shoulders','Shoulders','Core','Core','Shoulders','Core','Shoulders'],
+'Shoulders and Core':['Shoulders (Delts)','Shoulders (Delts)','Shoulders (Delts)','Core','Core','Shoulders (Delts)','Core','Shoulders (Delts)'],
 'Glutes and Hamstrings':['Glutes','Hamstrings','Glutes','Hamstrings','Glutes','Calves','Glutes','Core']
 };
 var CYC={full:['Full Body A','Full Body B','Full Body C'],ul:['Upper','Lower'],ppl:['Push','Pull','Legs'],bro:['Chest and Triceps','Back and Biceps','Legs','Shoulders and Core','Glutes and Hamstrings']};
@@ -245,7 +245,7 @@ return d.map(function(x,i){return{id:'g'+i,n:x[0],items:x[1].map(function(t,j){r
 }
 function defaults(){return{v:1,onboarded:false,equip:['db','bb','bench','rack','dip','cable','mine','band','bosu','ball','step','ellip'],gear:{db:'5, 10, 15, 20',bar:45,plates:'5, 10, 15, 25',bands:'10 to 50 lb'},days:[1,3,5],split:'auto',per:6,custom:[],plans:{},logs:{},tasks:[{id:'t1',t:'Warm up'},{id:'t2',t:'Stretch'},{id:'t3',t:'Drink water'}],groc:defGroc(),vw:{}}}
 var S;
-function load(){try{var raw=localStorage.getItem(KEY);if(raw){var o=Object.assign(defaults(),JSON.parse(raw));o.gear=Object.assign(defaults().gear,o.gear||{});return o}}catch(e){}return defaults()}
+function load(){try{var raw=localStorage.getItem(KEY);if(raw){var o=Object.assign(defaults(),JSON.parse(raw));o.gear=Object.assign(defaults().gear,o.gear||{});o.custom.forEach(function(c){if(c.m==='Shoulders')c.m='Shoulders (Delts)'});return o}}catch(e){}return defaults()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 S=load();
 var ui={tab:'today',date:today(),cal:thisYM(),range:26,exSel:'',metric:'top',edit:false,gedit:false,prSort:'recent',prQ:'',pk:{mode:'add',q:'',m:'All',all:false,ex:''},qm:[],askRes:null};
