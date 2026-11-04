@@ -695,7 +695,7 @@ h+='<section class="card"><h3>Custom exercises</h3>';
 if(S.custom.length)h+=S.custom.map(function(c){return'<div class="task"><span class="tx">'+esc(c.n)+' <span class="tag">'+c.m+'</span></span><button class="xbtn" data-act="delCustom" data-id="'+c.id+'" aria-label="Delete exercise">&times;</button></div>'}).join('');
 else h+='<p class="sub">Add moves that are not in the built-in list.</p>';
 h+='<div class="btns"><button class="btn" data-act="customModal">+ New exercise</button></div></section>';
-h+='<section class="card"><h3>Your data</h3><p class="sub">Everything lives in this browser on this device. Download a backup now and then, and use it to move to a new phone.</p><div class="btns"><button class="btn" data-act="exportJson">Backup (JSON)</button><button class="btn" data-act="exportCsv">Export sets (CSV)</button><button class="btn" data-act="importPick">Restore backup</button><button class="btn danger" data-act="resetAll">Erase everything</button></div><input type="file" id="imp" accept="application/json,.json" style="display:none"></section>';
+h+='<section class="card"><h3>Your data</h3><p class="sub">Everything lives in this browser on this device. Download a backup now and then, and use it to move to a new phone.</p><div class="btns"><button class="btn" data-act="exportJson">Backup (JSON)</button><button class="btn" data-act="exportCsv">Export sets (CSV)</button><button class="btn" data-act="importPick">Restore backup</button><button class="btn danger" data-act="resetWorkouts">Reset workout data</button><button class="btn danger" data-act="resetAll">Erase everything</button></div><input type="file" id="imp" accept="application/json,.json" style="display:none"></section>';
 return h;
 }
 
@@ -840,6 +840,7 @@ collect().forEach(function(r){out.push([r.d,'"'+exOf(r.ex).n.replace(/"/g,'""')+
 download('workout-tracker-sets-'+today()+'.csv',out.join('\n'),'text/csv');
 },
 importPick:function(){$('#imp').click()},
+resetWorkouts:function(){ask('Delete all planned workouts, logged sets, notes and body weight? Your equipment, settings, custom exercises, checklist and groceries stay.','Reset workout data').then(function(ok){if(ok){S.plans={};S.logs={};S.vw={};save();ui.date=today();ui.cal=thisYM();ui.tab='today';render();toast('Workout data reset')}})},
 resetAll:function(){ask('Erase all workouts, logs, groceries and settings from this browser? This cannot be undone.','Erase everything').then(function(ok){if(ok){S=defaults();save();ui.tab='today';ui.date=today();render();toast('Everything erased')}})}
 };
 function download(name,text,type){
