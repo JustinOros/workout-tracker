@@ -534,7 +534,7 @@ return h;
 function stepLine(n){var g=S.stepGoal||0;if(!(n>0))return'Enter the steps you walked today';return'About '+(n/2200).toFixed(1)+' miles'+(g>0?' \u00b7 '+fmt(n)+' of '+fmt(g)+' steps':'')}
 function stepCard(d){
 var n=S.steps[d]||0,g=S.stepGoal||0;
-return'<section class="card"><h3>Steps</h3><div class="row2"><input type="number" inputmode="numeric" min="0" step="1" data-in="steps" placeholder="Steps today" value="'+(n>0?n:'')+'" aria-label="Steps"><button class="btn" data-act="addSteps" data-n="1000">+1,000</button></div><p class="sub" id="steptxt">'+stepLine(n)+'</p>'+(g>0?'<div class="bar"><i id="stepbar" style="width:'+Math.min(100,100*n/g)+'%"></i></div>':'')+'</section>';
+return'<section class="card"><h3>Steps</h3><div class="field" style="margin-bottom:10px"><label>Total steps so far (from your phone or watch)</label><input type="number" inputmode="numeric" min="0" step="1" data-in="steps" value="'+(n>0?n:'')+'" aria-label="Steps"></div><div class="chips" style="margin-bottom:10px">'+[500,1000,2500,5000,-500].map(function(x){return'<button class="chip" data-act="addSteps" data-n="'+x+'">'+(x>0?'+':'-')+fmt(Math.abs(x))+'</button>'}).join('')+'</div><p class="sub" id="steptxt">'+stepLine(n)+'</p>'+(g>0?'<div class="bar"><i id="stepbar" style="width:'+Math.min(100,100*n/g)+'%"></i></div>':'')+'</section>';
 }
 function stepStats(){
 var days=Object.keys(S.steps||{}).filter(function(d){return S.steps[d]>0}).sort();
@@ -768,7 +768,7 @@ if(s.pr)toast('New personal record: '+exOf(ex).n+' '+wf(s.w)+' lb x '+s.r);
 }else s.pr=false;
 save();render();
 },
-addSteps:function(el){S.steps[ui.date]=(S.steps[ui.date]||0)+(+el.dataset.n);save();render()},
+addSteps:function(el){var v=Math.max(0,(S.steps[ui.date]||0)+(+el.dataset.n));if(v>0)S.steps[ui.date]=v;else delete S.steps[ui.date];save();render()},
 addSet:function(el){var rows=ensureRows(ui.date,el.dataset.ex),l=rows[rows.length-1]||{w:null,r:10};rows.push({w:l.w,r:l.r,d:false});save();render()},
 delSet:function(el){var rows=ensureRows(ui.date,el.dataset.ex);if(rows.length>1){rows.pop();save();render()}},
 task:function(el){var L=S.logs[ui.date]=S.logs[ui.date]||{};L.tasks=L.tasks||{};L.tasks[el.dataset.id]=!L.tasks[el.dataset.id];save();render()},
