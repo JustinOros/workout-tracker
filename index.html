@@ -243,7 +243,7 @@ function defGroc(){
 var d=[['Fruits',['Tomato','Strawberry','Raspberry','Banana','Pomegranate','Mandarin']],['Veggies',['Carrot','Cucumber','Lettuce','Spinach','Pickles','Zucchini','Mushroom','Bell pepper']],['Protein',['Beef','Chicken','Fish / tuna']],['Eggs & Dairy',['Eggs','Greek yogurt','Cottage cheese','Cheese']],['Snacks & Drinks',['Coffee','Seaweed','Cashew','Hippeas','Chocolate chip']],['Other',['Olive oil','Balsamic','Broth']],['Frozen',[]],['Dry & Canned',['Black beans','Honey','Rice','Peanut butter','Almond butter']]];
 return d.map(function(x,i){return{id:'g'+i,n:x[0],items:x[1].map(function(t,j){return{id:'g'+i+'_'+j,t:t,c:false}})}});
 }
-function defaults(){return{v:1,onboarded:false,equip:['db','bb','bench','rack','dip','cable','mine','band','bosu','ball','step','ellip'],gear:{db:'5, 10, 15, 20',bar:45,plates:'5, 10, 15, 25',bands:'10 to 50 lb'},days:[1,3,5],split:'auto',per:6,custom:[],plans:{},logs:{},tasks:[{id:'t1',t:'Warm up'},{id:'t2',t:'Stretch'},{id:'t3',t:'Drink water'}],groc:defGroc(),vw:{}}}
+function defaults(){return{v:1,onboarded:false,equip:['db','bb','bench','rack','dip','cable','mine','band','bosu','ball','step','ellip'],gear:{db:'5, 10, 15, 20',bar:45,plates:'5, 10, 15, 25',bands:'10 to 50 lb'},days:[1,3,5],split:'auto',per:6,custom:[],steps:{},stepGoal:0,plans:{},logs:{},tasks:[{id:'t1',t:'Warm up'},{id:'t2',t:'Stretch'},{id:'t3',t:'Drink water'}],groc:defGroc(),vw:{}}}
 var S;
 function load(){try{var raw=localStorage.getItem(KEY);if(raw){var o=Object.assign(defaults(),JSON.parse(raw));o.gear=Object.assign(defaults().gear,o.gear||{});o.custom.forEach(function(c){if(c.m==='Shoulders')c.m='Shoulders (Delts)'});return o}}catch(e){}return defaults()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -482,6 +482,7 @@ h+='<div class="btns"><button class="btn" data-act="addExModal">+ Add exercise</
 var done=hasDone(d);
 h+='<section class="card"><h2>'+(done?'Logged workout':'No workout planned')+'</h2><p class="sub">'+(done?'This day has logged sets.':'Rest day, or add something of your own for today.')+'</p><div class="btns"><button class="btn pri" data-act="quickModal">Build a workout</button><button class="btn" data-act="addExModal">+ Add exercise</button></div></section>';
 }
+h+=stepCard(d);
 h+='<section class="card"><div class="cardhead"><h3>Daily checklist</h3><button class="sm'+(ui.edit?' on':'')+'" data-act="editTasks">'+(ui.edit?'Done':'Edit')+'</button></div>';
 S.tasks.forEach(function(t){
 var on=L.tasks&&L.tasks[t.id];
@@ -530,6 +531,27 @@ h+='</section>';
 return h;
 }
 
+function stepLine(n){var g=S.stepGoal||0;if(!(n>0))return'Enter the steps you walked today';return'About '+(n/2200).toFixed(1)+' miles'+(g>0?' \u00b7 '+fmt(n)+' of '+fmt(g)+' steps':'')}
+function stepCard(d){
+var n=S.steps[d]||0,g=S.stepGoal||0;
+return'<section class="card"><h3>Steps</h3><div class="row2"><input type="number" inputmode="numeric" min="0" step="1" data-in="steps" placeholder="Steps today" value="'+(n>0?n:'')+'" aria-label="Steps"><button class="btn" data-act="addSteps" data-n="1000">+1,000</button></div><p class="sub" id="steptxt">'+stepLine(n)+'</p>'+(g>0?'<div class="bar"><i id="stepbar" style="width:'+Math.min(100,100*n/g)+'%"></i></div>':'')+'</section>';
+}
+function stepStats(){
+var days=Object.keys(S.steps||{}).filter(function(d){return S.steps[d]>0}).sort();
+if(!days.length)return'';
+var total=sum(days,function(d){return S.steps[d]}),best=days.slice().sort(function(a,b){return S.steps[b]-S.steps[a]})[0];
+var l7=0,i;
+for(i=0;i<7;i++)l7+=S.steps[addDays(today(),-i)]||0;
+var h='<div class="tiles" style="margin-top:14px">'+statTile('Total steps',fmt(total),'about '+fmt(total/2200)+' miles')+statTile('Daily average',fmt(total/days.length),days.length+' day'+(days.length===1?'':'s')+' logged')+statTile('Best day',fmt(S.steps[best]),fmtFull(best))+statTile('Last 7 days',fmt(l7),fmt(l7/7)+' per day')+'</div>';
+var d30=[];
+for(i=29;i>=0;i--){var dd=addDays(today(),-i);d30.push({l:fmtShort(dd),v:S.steps[dd]||0,hl:i===0})}
+h+='<section class="card"><h3>Daily steps, last 30 days</h3>'+bars(d30,{maxLabels:8})+'</section>';
+var ws=weekStart(today()),wk=[],idx={};
+for(i=ui.range-1;i>=0;i--){var w=addDays(ws,-7*i);idx[w]=wk.length;wk.push({l:fmtShort(w),v:0,hl:i===0})}
+days.forEach(function(d){var k=idx[weekStart(d)];if(k!==undefined)wk[k].v+=S.steps[d]});
+h+='<section class="card"><h3>Weekly steps</h3>'+bars(wk,{maxLabels:8})+'</section>';
+return h;
+}
 function statTile(l,v,s){return'<div class="tile"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>'}
 function milestone(name,val,steps,unit){
 var next=steps.filter(function(x){return x>val})[0];
@@ -541,7 +563,8 @@ return h+'</div>';
 }
 function viewStats(){
 var rows=collect();
-if(!rows.length)return'<section class="card empty"><h2>Your stats will show up here</h2><p>Log your first set on the Today tab. This page fills in with totals, records, charts and milestones as you go.</p></section>';
+var stepHtml=stepStats();
+if(!rows.length)return stepHtml||'<section class="card empty"><h2>Your stats will show up here</h2><p>Log your first set or your steps on the Today tab. This page fills in with totals, records, charts and milestones as you go.</p></section>';
 var dates=Array.from(new Set(rows.map(function(r){return r.d}))).sort();
 var totalVol=sum(rows,function(r){return r.vol}),sets=rows.length,reps=sum(rows,function(r){return r.t?0:r.r}),hold=sum(rows,function(r){return r.t?r.r*(r.u==='min'?60:1):0});
 var byDay={},daySets={};
@@ -654,6 +677,7 @@ var bwk=Object.keys(S.vw).filter(function(k){return S.vw[k]>0}).sort();
 h+='<section class="card"><h3>Body weight (lb)</h3>'+line(bwk.map(function(k){return{l:fmtShort(k),v:S.vw[k]}}),{fmt:function(v){return wf(v)}})+'</section>';
 }
 
+h+=stepHtml;
 h+='<section class="card"><h3>Milestones</h3>'+milestone('Workouts',dates.length,[1,5,10,25,50,100,200,365],'')+milestone('Total lifted',totalVol,[1000,5000,10000,25000,50000,100000,250000,500000,1000000],' lb')+milestone('Records',prs,[1,5,10,25,50,100],'');
 var badges=[];
 [1,5,10,25,50,100,200].forEach(function(n){badges.push([n+' workout'+(n>1?'s':''),dates.length>=n,'Workouts'])});
@@ -690,6 +714,7 @@ h+='<section class="card"><h3>Your weights</h3><p class="sub" style="margin-bott
 h+='<section class="card"><h3>How you train</h3><div class="field"><label>Training days</label><div class="days">'+DOW.map(function(x,i){return'<button class="'+(S.days.indexOf(i)>-1?'on':'')+'" data-act="dow" data-n="'+i+'">'+x+'</button>'}).join('')+'</div></div>';
 h+='<div class="field"><label>Workout style</label><select data-ch="split">'+[['auto','Automatic, based on your days'],['full','Full body each day'],['ul','Upper and lower'],['ppl','Push, pull, legs'],['bro','One or two muscle groups per day']].map(function(x){return'<option value="'+x[0]+'"'+(S.split===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select></div>';
 h+='<div class="field"><label>Exercises per workout</label><select data-ch="per">'+[3,4,5,6,7,8].map(function(n){return'<option value="'+n+'"'+(S.per===n?' selected':'')+'>'+n+'</option>'}).join('')+'</select></div>';
+h+='<div class="field"><label>Daily step goal (optional)</label><input type="number" inputmode="numeric" min="0" step="500" placeholder="No goal" data-ch="stepgoal" value="'+(S.stepGoal>0?S.stepGoal:'')+'"></div>';
 h+='<div class="btns"><button class="btn pri" data-act="firstBuild">'+(S.onboarded?'Rebuild this month from today':'Build my first month')+'</button></div></section>';
 h+='<section class="card"><h3>Custom exercises</h3>';
 if(S.custom.length)h+=S.custom.map(function(c){return'<div class="task"><span class="tx">'+esc(c.n)+' <span class="tag">'+c.m+'</span></span><button class="xbtn" data-act="delCustom" data-id="'+c.id+'" aria-label="Delete exercise">&times;</button></div>'}).join('');
@@ -743,6 +768,7 @@ if(s.pr)toast('New personal record: '+exOf(ex).n+' '+wf(s.w)+' lb x '+s.r);
 }else s.pr=false;
 save();render();
 },
+addSteps:function(el){S.steps[ui.date]=(S.steps[ui.date]||0)+(+el.dataset.n);save();render()},
 addSet:function(el){var rows=ensureRows(ui.date,el.dataset.ex),l=rows[rows.length-1]||{w:null,r:10};rows.push({w:l.w,r:l.r,d:false});save();render()},
 delSet:function(el){var rows=ensureRows(ui.date,el.dataset.ex);if(rows.length>1){rows.pop();save();render()}},
 task:function(el){var L=S.logs[ui.date]=S.logs[ui.date]||{};L.tasks=L.tasks||{};L.tasks[el.dataset.id]=!L.tasks[el.dataset.id];save();render()},
@@ -840,7 +866,7 @@ collect().forEach(function(r){out.push([r.d,'"'+exOf(r.ex).n.replace(/"/g,'""')+
 download('workout-tracker-sets-'+today()+'.csv',out.join('\n'),'text/csv');
 },
 importPick:function(){$('#imp').click()},
-resetWorkouts:function(){ask('Delete all planned workouts, logged sets, notes and body weight? Your equipment, settings, custom exercises, checklist and groceries stay.','Reset workout data').then(function(ok){if(ok){S.plans={};S.logs={};S.vw={};save();ui.date=today();ui.cal=thisYM();ui.tab='today';render();toast('Workout data reset')}})},
+resetWorkouts:function(){ask('Delete all planned workouts, logged sets, notes, steps and body weight? Your equipment, settings, custom exercises, checklist and groceries stay.','Reset workout data').then(function(ok){if(ok){S.plans={};S.logs={};S.vw={};S.steps={};save();ui.date=today();ui.cal=thisYM();ui.tab='today';render();toast('Workout data reset')}})},
 resetAll:function(){ask('Erase all workouts, logs, groceries and settings from this browser? This cannot be undone.','Erase everything').then(function(ok){if(ok){S=defaults();save();ui.tab='today';ui.date=today();render();toast('Everything erased')}})}
 };
 function download(name,text,type){
@@ -860,6 +886,7 @@ var rows=ensureRows(ui.date,t.dataset.ex),i=+t.dataset.i;
 rows[i][k]=t.value===''?null:parseFloat(t.value);
 save();updateSummary();
 }else if(k==='note'){var L=S.logs[ui.date]=S.logs[ui.date]||{};L.note=t.value;save()}
+else if(k==='steps'){var sn=parseInt(t.value,10);if(isNaN(sn)||sn<=0)delete S.steps[ui.date];else S.steps[ui.date]=sn;save();var stx=$('#steptxt');if(stx)stx.textContent=stepLine(S.steps[ui.date]||0);var sb=$('#stepbar');if(sb)sb.style.width=Math.min(100,100*(S.steps[ui.date]||0)/(S.stepGoal||1))+'%'}
 else if(k==='bw'){var v=parseFloat(t.value);if(isNaN(v))delete S.vw[ui.date];else S.vw[ui.date]=v;save()}
 else if(k==='pkq'){ui.pk.q=t.value;$('#pklist').innerHTML=pickHtml()}
 else if(k==='prq'){ui.prQ=t.value;render();var q=$('#prq');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
@@ -868,6 +895,7 @@ document.addEventListener('change',function(e){
 var t=e.target,k=t.dataset.ch;if(!k)return;
 if(k==='split'){S.split=t.value;save()}
 else if(k==='per'){S.per=+t.value;save()}
+else if(k==='stepgoal'){S.stepGoal=Math.max(0,parseInt(t.value,10)||0);save()}
 else if(k==='gdb'){S.gear.db=t.value;save()}
 else if(k==='gbar'){S.gear.bar=t.value;save()}
 else if(k==='gplates'){S.gear.plates=t.value;save()}
