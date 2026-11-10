@@ -149,6 +149,12 @@ td{padding:8px 6px 8px 0;border-top:1px solid var(--bd);vertical-align:top}
 .gi:first-of-type{border-top:0}
 .gi.on .tx{color:var(--mu);text-decoration:line-through}
 .gi .box{width:22px;height:22px;border-radius:6px}
+.xc{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--mu);background:none;color:var(--mu);font-size:18px;line-height:1;display:grid;place-items:center;padding:0 0 2px;flex-shrink:0}
+.xc:active{border-color:#ff8a80;color:#ff8a80}
+.dw{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--bd)}
+.dw:first-of-type{border-top:0}
+.dw .go{flex:1;background:none;border:0;text-align:left;padding:0}
+.dw .go b{display:block}
 .xbtn{background:none;border:0;color:#ff8a80;font-size:18px;padding:0 6px}
 .gcard .addrow input{padding:6px 8px;font-size:14px}
 .gcard .addrow .sm{padding:5px 10px}
@@ -511,6 +517,15 @@ for(var day=1;day<=n;day++)h+=cellHtml(ym,day);
 h+='</div>';
 var dates=monthDates(ym),doneN=dates.filter(hasDone).length,planN=dates.filter(function(d){return S.plans[d]&&!hasDone(d)}).length,vol=monthVol(ym),pv=monthVol(shiftYM(ym,-1));
 h+='<div class="tiles three" style="margin-top:14px"><div class="tile"><div class="l">Done</div><div class="v">'+doneN+'</div><div class="s">workouts</div></div><div class="tile"><div class="l">Lifted</div><div class="v">'+short(vol)+'</div><div class="s">'+(pv>0&&vol>pv?'<span class="up">+'+Math.round(100*(vol-pv)/pv)+'% vs last month</span>':pv>0?'last month '+short(pv)+' lb':'lb this month')+'</div></div><div class="tile"><div class="l">Coming up</div><div class="v">'+planN+'</div><div class="s">planned</div></div></div>';
+var doneList=dates.filter(hasDone).reverse();
+if(doneList.length){
+h+='<section class="card"><h3>Completed workouts</h3>';
+doneList.forEach(function(d){
+var st=dayStats(d),p=S.plans[d];
+h+='<div class="dw"><button class="go" data-act="openDay" data-d="'+d+'"><b>'+esc(p?p.label:'Workout')+'</b><span class="sub">'+fmtDate(d)+' \u00b7 '+st.sets+' set'+(st.sets===1?'':'s')+' \u00b7 '+fmt(st.vol)+' lb</span></button><button class="xc" data-act="delDone" data-d="'+d+'" aria-label="Delete this workout" title="Delete this workout">&times;</button></div>';
+});
+h+='</section>';
+}
 var nextYM=shiftYM(thisYM(),1),daysLeft=new Date(a[0],a[1],0).getDate()-new Date().getDate();
 if(ym===thisYM()&&daysLeft<=7&&!monthHasPlans(nextYM))h+='<div class="banner"><b>Ready for '+monthName(nextYM)+'?</b><p class="sub">Build next month with a fresh set of exercises.</p><div class="btns"><button class="btn pri" data-act="planMonth" data-ym="'+nextYM+'">Build '+monthName(nextYM)+' workouts</button></div></div>';
 h+='<section class="card" style="margin-top:14px"><h3>Plan '+monthName(ym)+'</h3>';
@@ -866,6 +881,10 @@ collect().forEach(function(r){out.push([r.d,'"'+exOf(r.ex).n.replace(/"/g,'""')+
 download('workout-tracker-sets-'+today()+'.csv',out.join('\n'),'text/csv');
 },
 importPick:function(){$('#imp').click()},
+delDone:function(el){
+var d=el.dataset.d;
+ask('Delete the workout on '+fmtDate(d)+' and all of its logged sets?','Delete').then(function(ok){if(ok){if(S.logs[d])delete S.logs[d].sets;delete S.plans[d];save();render();toast('Workout deleted')}});
+},
 resetWorkouts:function(){ask('Delete all planned workouts, logged sets, notes, steps and body weight? Your equipment, settings, custom exercises, checklist and groceries stay.','Reset workout data').then(function(ok){if(ok){S.plans={};S.logs={};S.vw={};S.steps={};save();ui.date=today();ui.cal=thisYM();ui.tab='today';render();toast('Workout data reset')}})},
 resetAll:function(){ask('Erase all workouts, logs, groceries and settings from this browser? This cannot be undone.','Erase everything').then(function(ok){if(ok){S=defaults();save();ui.tab='today';ui.date=today();render();toast('Everything erased')}})}
 };
